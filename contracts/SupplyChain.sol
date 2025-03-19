@@ -7,7 +7,7 @@ import "./ParticipationManager.sol";
 contract SupplyChain {
     string public productType;
     address[] public deployedProducts;
-    address private participationManagerAddress;
+    address public participationManagerAddress;
 
     event ProductCreated(address indexed contractAddress);
 
@@ -39,5 +39,9 @@ contract SupplyChain {
         ));
         deployedProducts.push(newProduct);
         emit ProductCreated(newProduct);
+    }
+
+    function getParticipationManagerAddress() public view returns (address) {
+        return participationManagerAddress;
     }
 }
