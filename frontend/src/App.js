@@ -1,124 +1,239 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import "./App.css";
+
 import SupplyChainArtifact from "./artifacts/contracts/SupplyChain.sol/SupplyChain.json";
 import ParticipationManagerArtifact from "./artifacts/contracts/ParticipationManager.sol/ParticipationManager.json";
 import OrganizationArtifact from "./artifacts/contracts/Organization.sol/Organization.json";
+import ProductArtifact from "./artifacts/contracts/Product.sol/Product.json";
+import ProductAtOrganizationArtifact from "./artifacts/contracts/ProductAtOrganization.sol/ProductAtOrganization.json";
 
 function App() {
+  // Wallet and provider
   const [walletAddress, setWalletAddress] = useState("");
-  const [supplyChainContract, setSupplyChainContract] = useState(null);
-  const [participationManagerContract, setParticipationManagerContract] = useState(null);
-  const [participationManagerContractAddress, setParticipationManagerContractAddress] = useState("");
-  const [provider, setProvider] = useState(null);
   const [wallet, setWallet] = useState(null);
-  const [organizations, setOrganizations] = useState("");
-  
-  // Remove trailing spaces from addresses
-  const supplyChainAddress = "0xf812A1F169C8cD6f853688a9fD38ae8e71A2D99A";
-  const organizationAddress = "0xD72a9f4184Ef9587399942A98f4cD9a1dD1D854f";
+  const [provider, setProvider] = useState(null);
 
+  // Contracts
+  const [supplyChainContract, setSupplyChainContract] = useState(null);
+  const [participationManagerContractAddress, setParticipationManagerContractAddress] = useState("");
+  const [participationManagerContract, setParticipationManagerContract] = useState(null);
+  const [organizationContract, setOrganizationContract] = useState(null);
+
+  // Organizations
+  const [organizations, setOrganizations] = useState([]);
+  const [selectedOrganization, setSelectedOrganization] = useState(null);
+
+  // Products
+  const [productsList, setProductsList] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Events
+  const [productEvents, setProductEvents] = useState([]);
+
+  // Supply Chain Address
+  const supplyChainAddress = "0xa9242687f519f72Acd127F05DBfc91942F94Ca94";
+
+  // Auto-connect wallet on mount
   useEffect(() => {
-    console.log("window.ethereum", window.ethereum);
+    if (window.ethereum) {
+      connectWallet();
+    }
   }, []);
 
   async function connectWallet() {
-    if (window.ethereum) {
-      try {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        
-        const customNetwork = {
-          name: "besu",
-          chainId: 1337,
-          ensAddress: null, 
-        };
-        const privateKey = "0xe18414ceb180a62508d31eb2cc206885f7351a3afa096aefcf880617e13a6805";
-        const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545", customNetwork);
-        const wallet = new ethers.Wallet(privateKey, provider);
-        setWalletAddress(provider);
-        setWallet(wallet);
+    try {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const besuNetwork = { name: "besu", chainId: 1337, ensAddress: null };
+      const rpcProvider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545", besuNetwork);
+      const privateKey = "0xe18414ceb180a62508d31eb2cc206885f7351a3afa096aefcf880617e13a6805";
+      const signerWallet = new ethers.Wallet(privateKey, rpcProvider);
+      setProvider(rpcProvider);
+      setWallet(signerWallet);
+      const addr = await signerWallet.getAddress();
+      setWalletAddress(addr);
 
-        const supplyChainContract = new ethers.Contract(
-          supplyChainAddress,
-          SupplyChainArtifact.abi,
-          wallet
-        );
-        setSupplyChainContract(supplyChainContract);
-        const walletAddress = await wallet.getAddress();
-        setWalletAddress(walletAddress);
-        loadParticipationManagerAddress(supplyChainContract);
+      const supplyChain = new ethers.Contract(supplyChainAddress, SupplyChainArtifact.abi, signerWallet);
+      setSupplyChainContract(supplyChain);
 
-        console.log("Initialization successful:", {
-          provider,
-          wallet,
-          supplyChainContract,
-          walletAddress,
-        });
-      } catch (error) {
-        console.error("Error initializing contract:", error);
-        alert("Error connecting wallet");
-      }
-    } else {
-      alert("Please install MetaMask!");
+      await loadParticipationManagerAddress(supplyChain, signerWallet);
+      console.log("Initialization successful:", {
+        provider: rpcProvider,
+        wallet: signerWallet,
+        supplyChainContract: supplyChain,
+        walletAddress: addr,
+      });
+    } catch (error) {
+      console.error("Error connecting wallet:", error);
+      alert("Error connecting wallet");
     }
   }
 
-  async function loadParticipationManagerAddress(contract) {
+  async function loadParticipationManagerAddress(contract, walletInstance) {
     try {
-      const participationManagerAddress = await contract.getParticipationManagerAddress();
-      console.log("ParticipationManager Address:", participationManagerAddress);
-      setParticipationManagerContractAddress(participationManagerAddress)
+      const pmAddress = await contract.getParticipationManagerAddress();
+      console.log("ParticipationManager Address:", pmAddress);
+      setParticipationManagerContractAddress(pmAddress);
+      const pmContract = new ethers.Contract(pmAddress, ParticipationManagerArtifact.abi, walletInstance);
+      setParticipationManagerContract(pmContract);
+      await loadOrganizations(pmContract, walletInstance);
     } catch (error) {
       console.error("Error loading ParticipationManager Address:", error);
     }
   }
 
-  async function connectParticipationManager() {
+  async function loadOrganizations(pmContract, walletInstance) {
     try {
-      const participationManagerContract = new ethers.Contract(
-        participationManagerContractAddress,
-        ParticipationManagerArtifact.abi,
-        wallet
-      );
-      setParticipationManagerContract(participationManagerContract);
-
-      loadOrganizationsAddresses(participationManagerContract);
-
-      console.log("Participation Manager Initialization successful:", {
-        provider,
-        wallet,
-        participationManagerContract,
-        walletAddress,
-      });
+      const orgs = await pmContract.GetOrganizations();
+      console.log("Organizations Addresses:", orgs);
+      let orgsInfo = [];
+      for (let i = 0; i < orgs.length; i++) {
+        const orgAddr = orgs[i];
+        const orgContract = new ethers.Contract(orgAddr, OrganizationArtifact.abi, walletInstance);
+        try {
+          const info = await orgContract.getInfo();
+          orgsInfo.push({ address: orgAddr, info });
+        } catch (error) {
+          console.error("Error loading org info for", orgAddr, error);
+        }
+      }
+      setOrganizations(orgsInfo);
     } catch (error) {
-      console.error("Error initializing contract:", error);
-      alert("Error connecting wallet");
+      console.error("Error loading Organizations:", error);
     }
   }
 
-  async function loadOrganizationsAddresses(contract) {
+  async function handleOrganizationClick(org) {
+    resetProducts();
+    setSelectedOrganization(org);
+    await loadProductsForOrganization(org.address);
+    await connectOrganization(org.address);
+  }
+
+  async function resetProducts() {
+    setSelectedProduct(null);
+    setProductEvents([]);
+  }
+
+  async function loadProductsForOrganization(orgAddress) {
     try {
-      const organizationsAddresses = await contract.GetOrganizations();
-      console.log("Organizations Addresses:", organizationsAddresses);
+      const deployedProducts = await supplyChainContract.getDeployedProducts();
+      let productsForOrg = [];
+      for (let i = 0; i < deployedProducts.length; i++) {
+        const productAddr = deployedProducts[i];
+        const productContract = new ethers.Contract(productAddr, ProductArtifact.abi, wallet);
+        try {
+          const productAtOrgAddr = await productContract.getProductAtOrganization(orgAddress);
+          if (productAtOrgAddr !== ethers.constants.AddressZero) {
+            let productDetails;
+            if (typeof productContract.getProductInfo === "function") {
+              productDetails = await productContract.getProductInfo();
+            } else {
+              const name = await productContract.getName();
+              productDetails = { name, id: "N/A" };
+            }
+            productsForOrg.push({
+              productAddress: productAddr,
+              productAtOrgAddress: productAtOrgAddr,
+              productName: productDetails.name,
+              productId: productDetails.id,
+            });
+          }
+        } catch (err) {
+          console.error("Error for product", productAddr, err);
+        }
+      }
+      console.log("Products for organization", orgAddress, productsForOrg);
+      setProductsList(productsForOrg);
     } catch (error) {
-      console.error("Error loading Organizations Addresses:", error);
+      console.error("Error loading products for organization:", error);
+    }
+  }
+
+  async function connectOrganization(orgAddress) {
+    try {
+      const orgContract = new ethers.Contract(orgAddress, OrganizationArtifact.abi, wallet);
+      setOrganizationContract(orgContract);
+    } catch (error) {
+      console.error("Error connecting organization contract:", error);
+    }
+  }
+
+  async function handleProductClick(product) {
+    setSelectedProduct(product);
+    await loadProductEvents(product.productAtOrgAddress);
+  }
+
+  async function loadProductEvents(productAtOrgAddr) {
+    try {
+      const productAtOrgContract = new ethers.Contract(productAtOrgAddr, ProductAtOrganizationArtifact.abi, wallet);
+      const events = await productAtOrgContract.getEvents();
+      console.log("Product Events:", events);
+      setProductEvents(events);
+    } catch (error) {
+      console.error("Error loading product events:", error);
     }
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", background: "#fff" }}>
-      <button onClick={connectWallet}>Conectar Carteira</button>
-      {walletAddress && <p>Conectado: {walletAddress}</p>}
-      <button onClick={connectParticipationManager}>Listar Organizações</button>
-      {organizations && organizations.length > 0 && (
-        <div>
-          <h3>Organizações:</h3>
-          <ul>
-            {organizations.map((org, index) => (
-              <li key={index}>{org}</li>
+    <div className="container">
+      <div className="left">
+        <div className="section">
+          <h2>Organizations</h2>
+          {organizations.length > 0 ? (
+            <ul className="list">
+              {organizations.map((org, index) => (
+                <li key={index} className="cell">
+                  <button onClick={() => handleOrganizationClick(org)} className="button">
+                    {org.info.companyName} <br /> <span className="small-text">({org.address})</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No organizations found.</p>
+          )}
+        </div>
+        <div className="section">
+          <h2>
+            Products for Organization:{" "}
+            {selectedOrganization ? selectedOrganization.info.companyName : "None selected"}
+          </h2>
+          {productsList.length > 0 ? (
+            <ul className="list">
+              {productsList.map((prod, index) => (
+                <li key={index} className="cell">
+                  <button onClick={() => handleProductClick(prod)} className="button">
+                    {prod.productName} <br /> <span className="small-text">({prod.productAddress})</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No products for selected organization.</p>
+          )}
+        </div>
+      </div>
+      <div className="right">
+        <h2>
+          Product Events:{" "}
+          {selectedProduct ? selectedProduct.productName : "None selected"}
+        </h2>
+        {productEvents.length > 0 ? (
+          <ul className="list">
+            {productEvents.map((event, index) => (
+              <li key={index} className="cell">
+                <p><strong>Type:</strong> {event.typeEvent}</p>
+                <p><strong>Time:</strong> {event.timeEvent}</p>
+                <p><strong>Data:</strong></p>
+                <pre className="json-data">{JSON.stringify(JSON.parse(event.jsonEvent), null, 2)}</pre>
+              </li>
             ))}
           </ul>
-        </div>
-      )}
+        ) : (
+          <p>No events for selected product.</p>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,38 +1,109 @@
-.App {
-  text-align: center;
+/* Colors provided:
+   Primary: #A4303F
+   Secondary: #F2D0A4
+   Accent: #ffeccc */
+
+/* Container for the whole app */
+.container {
+  display: flex;
+  height: 100vh;
+  font-family: "Arial", sans-serif;
+  background-color: #ffeccc; /* Accent background */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Left side container */
+.left {
+  width: 50%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  gap: 1rem;
+  padding: 1rem;
 }
 
-.App-link {
-  color: #61dafb;
+/* Each section on the left (Organizations and Products) */
+.section {
+  flex: 1;
+  overflow-y: auto;
+  border: 2px solid #A4303F;
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: #F2D0A4;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Right side container (for events) with scroll */
+.right {
+  width: 50%;
+  margin-top: 1rem;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  border: 2px solid #A4303F;
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: #F2D0A4;
+  overflow-y: auto;
+}
+
+/* List styling */
+.list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Each cell in the list */
+.cell {
+  border: 1px solid #A4303F;       /* Primary color border */
+  background-color: #ffeccc;         /* Accent background */
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  white-space: normal;             /* Allow line breaks */
+  word-break: break-word;          /* Break long words if needed */
+}
+
+/* Remove margin for the last cell */
+.cell:last-child {
+  margin-bottom: 0;
+}
+
+/* Button styles within cells */
+.button {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #A4303F;
+}
+
+/* Hover effect for buttons */
+.button:hover {
+  background-color: rgba(164, 48, 63, 0.1);
+}
+
+/* Title styling */
+h2 {
+  color: #A4303F;
+  margin-bottom: 1rem;
+}
+
+p {
+  color: #333;
+}
+
+.small-text {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.json-data {
+  background-color: #ffeccc;
+  padding: 0.5rem;
+  border: 1px solid #F2D0A4;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: monospace;
+  white-space: pre-wrap; /* Wrap long lines */
 }

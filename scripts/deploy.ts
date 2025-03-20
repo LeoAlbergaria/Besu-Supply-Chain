@@ -11,8 +11,8 @@ async function main() {
     }
 
     const orgs: Organization[] = [
-        { url: "example.com", name: "org1" },
-        { url: "example.com", name: "org2" },
+        { url: "example.com", name: "organization1" },
+        { url: "example.com", name: "organization2" },
     ];
 
     const [deployer] = await ethers.getSigners();
@@ -58,21 +58,40 @@ async function main() {
     }
 
     const products: Product[] = [
-        { id: "p1", url: "example.com", name: "org1" },
-        { id: "p2", url: "example.com", name: "org2" },
+        { id: "p1", url: "example.com", name: "product1" },
+        { id: "p2", url: "example.com", name: "product2" },
+        { id: "p3", url: "example.com", name: "product3" },
     ];
 
-    const productAddress = await deployProduct(
+    const product1Address = await deployProduct(
         supplyChainAddress,
         products[0].name,
         products[0].id,
         org1Address
     );
 
-    console.log("Contrato product1:", productAddress);
+    console.log("Contrato product1:", product1Address);
+    console.log("Contrato product1AtOrganization1:", product1Address);
 
+    const product2Address = await deployProduct(
+        supplyChainAddress,
+        products[1].name,
+        products[1].id,
+        org1Address
+    );
 
-    console.log("Contrato product1AtOrganization1:", productAddress);
+    console.log("Contrato product2:", product2Address);
+    console.log("Contrato product1AtOrganization2:", product2Address);
+
+    const product3Address = await deployProduct(
+        supplyChainAddress,
+        products[2].name,
+        products[2].id,
+        org2Address
+    );
+
+    console.log("Contrato product1:", product3Address);
+    console.log("Contrato product1AtOrganization1:", product3Address);
 
 
     // ----------------------------------------------------------------    

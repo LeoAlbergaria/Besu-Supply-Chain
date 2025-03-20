@@ -44,4 +44,8 @@ contract SupplyChain {
     function getParticipationManagerAddress() public view returns (address) {
         return participationManagerAddress;
     }
+
+    function getDeployedProducts() public view returns (address[] memory) {
+        return deployedProducts;
+    }
 }
