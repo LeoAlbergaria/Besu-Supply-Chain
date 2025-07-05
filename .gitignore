@@ -1,5 +1,6 @@
 node_modules
 .env
+.DS_Store
 
 # Hardhat files
 /cache
@@ -15,3 +16,16 @@ node_modules
 
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
+
+# Besu
+BesuNetwork/Node-1/data/caches
+BesuNetwork/Node-1/data/database
+
+BesuNetwork/Node-2/data/caches
+BesuNetwork/Node-2/data/database
+
+BesuNetwork/Node-3/data/caches
+BesuNetwork/Node-3/data/database
+
+BesuNetwork/Node-4/data/caches
+BesuNetwork/Node-4/data/database

@@ -32,7 +32,7 @@ function App() {
   const [productEvents, setProductEvents] = useState([]);
 
   // Supply Chain Address
-  const supplyChainAddress = "0xa9242687f519f72Acd127F05DBfc91942F94Ca94";
+  const supplyChainAddress = "0xD193Be079bAf38c8D1391839e81b6382C0469469";
 
   // Auto-connect wallet on mount
   useEffect(() => {

@@ -1,8 +1,8 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  const productAddress = "0x082aed8eE6C6D15ABc33D556034fe59EA9BF5D13";
-  const orgAddress = "0xaB5bf766Bde4EDabFd8c663d0dE8d939c5431F92";
+  const productAddress = "0xB27bBE5B8C2B6D0Feec09A6BAaDfA09C507cDfA3";
+  const orgAddress = "0x04D6a69F9c08654c363B159009310f58ec2c81a4";
 
   const productContract = await ethers.getContractAt("Product", productAddress);
   const patoAddress = await productContract.getProductAtOrganization(orgAddress);
