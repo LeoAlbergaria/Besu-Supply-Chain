@@ -24,16 +24,28 @@ contract ProductAtOrganization {
     address public manager;
     ProductPermissions public permissions;
 
-    constructor(address _productAddress, address _organizationAddress, address _manager) {
+    constructor(
+        address _productAddress,
+        address _organizationAddress,
+        address _manager
+    ) {
         manager = _manager;
-        productInfo = Info({ productAddress: _productAddress, organizationAddress: _organizationAddress });
+        productInfo = Info({
+            productAddress: _productAddress,
+            organizationAddress: _organizationAddress
+        });
+        permissions = ProductPermissions(_productAddress);
     }
 
     function getInfo() public view returns (Info memory) {
         return productInfo;
     }
 
-    function addEvent(string memory _timeEvent, string memory _typeEvent, string memory _jsonEvent) public {
+    function addEvent(
+        string memory _timeEvent,
+        string memory _typeEvent,
+        string memory _jsonEvent
+    ) public {
         EventInfo memory eventInfo = EventInfo({
             jsonEvent: _jsonEvent,
             timeEvent: _timeEvent,
@@ -43,6 +55,13 @@ contract ProductAtOrganization {
     }
 
     function getEvents() public view returns (EventInfo[] memory) {
+        require(
+            permissions.hasPermission(
+                msg.sender,
+                productInfo.organizationAddress
+            ),
+            "Access denied: caller not authorized"
+        );
         return events;
     }
 }

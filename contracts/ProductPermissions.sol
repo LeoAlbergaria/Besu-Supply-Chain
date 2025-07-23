@@ -26,6 +26,7 @@ abstract contract ProductPermissions {
         return permissionsMatrix[org1][org2] == 1;
     }
 
+    //Esta sendo usado?
     function getAllMyPermissedOrgs(address organizationAddr) public view returns (address[] memory) {
         uint256 permittedOrgCount = 0;
         for (uint256 i = 0; i < orgAddresses.length; i++) {
