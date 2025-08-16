@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useLocation, useParams } from 'react-router-dom';
 import { FiChevronLeft } from 'react-icons/fi';
@@ -8,9 +8,14 @@ import { Colors, Metrics } from '../styles';
 import Header from '../components/Header.js';
 import Title from '../components/Title.js';
 
+import { ethers } from "ethers";
+
+import SupplyChainArtifact from '../artifacts/contracts/SupplyChain.sol/SupplyChain.json';
+import ProductArtifact from '../artifacts/contracts/Product.sol/Product.json';
 
 export default function ProductsList() {
   const [search, setSearch] = useState('');
+  const [products, setProducts] = useState([]);
 
   const { state } = useLocation();
   const { chain } = state || {};
@@ -21,45 +26,52 @@ export default function ProductsList() {
     navigate(-1);
   };
 
-  const products = [
-    {
-      name: 'Organic Coffee Beans',
-      id: 'PROD-12345',
-      status: 'Active',
-      updatedAt: '2024-01-15',
-    },
-    {
-      name: 'Sustainable Cotton',
-      id: 'PROD-67890',
-      status: 'In Transit',
-      updatedAt: '2024-01-20',
-    },
-    {
-      name: 'Recycled Plastic Packaging',
-      id: 'PROD-11223',
-      status: 'Delivered',
-      updatedAt: '2024-01-25',
-    },
-    {
-      name: 'Fair Trade Cocoa',
-      id: 'PROD-33445',
-      status: 'Active',
-      updatedAt: '2024-01-30',
-    },
-    {
-      name: 'Ethically Sourced Leather',
-      id: 'PROD-55667',
-      status: 'Pending',
-      updatedAt: '2024-02-05',
-    },
-  ];
+  useEffect(() => {
+    if (!chain?.address || !window.ethereum) return;
+
+    const loadProducts = async () => {
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        const supplyChain = new ethers.Contract(chain.address, SupplyChainArtifact.abi, signer);
+        const productAddresses = await supplyChain.getDeployedProducts();
+
+        const loaded = await Promise.all(
+          productAddresses.map(async (addr) => {
+            try {
+              const product = new ethers.Contract(addr, ProductArtifact.abi, signer);
+              const name = await product.getName();
+              // const id = await product.getId(); // requires you to expose getId()'
+              const id = 1
+              return {
+                name,
+                id,
+                address: addr,
+                updatedAt: '-', // TODO: if you want to track this
+              };
+            } catch (err) {
+              console.error("Failed to load product at", addr, err);
+              return null;
+            }
+          })
+        );
+
+        setProducts(loaded.filter(Boolean));
+      } catch (err) {
+        console.error("Failed to load products:", err);
+      }
+    };
+
+    loadProducts();
+  }, [chain?.address]);
 
   const filtered = products.filter(product =>
     product.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleViewDetails = (product) => {
-    navigate(`/product/${product.id}`);
+    navigate(`/product/${product.address}`);
   };
 
   return (
@@ -96,6 +108,7 @@ export default function ProductsList() {
               <tr>
                 <th>Product Name</th>
                 <th>Product ID</th>
+                <th>Address</th>
                 <th>Last Updated</th>
                 <th>Actions</th>
               </tr>
@@ -105,6 +118,7 @@ export default function ProductsList() {
                 <tr key={idx} style={{ borderBottom: `1px solid ${Colors.border}` }}>
                   <td style={{ padding: 12 }}>{product.name}</td>
                   <td style={{ padding: 12, color: Colors.textSecondary, fontWeight: 500 }}>{product.id}</td>
+                  <td style={{ padding: 12 }}>{product.address}</td>
                   <td style={{ padding: 12 }}>{product.updatedAt}</td>
                   <td style={{ padding: 12 }}>
                     <TextAction onClick={() => handleViewDetails(product)}>

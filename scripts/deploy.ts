@@ -2,7 +2,6 @@ import { ethers } from "hardhat";
 import { deployOrganization } from "./organization";
 import { deploySupplyChain, acceptParticipation } from "./supplychain";
 import { deployProduct } from "./product";
-import { enablePipelinePATO } from "./pato";
 
 async function main() {
     interface Organization {
@@ -91,22 +90,7 @@ async function main() {
     );
 
     console.log("Contrato product1:", product3Address);
-    console.log("Contrato product1AtOrganization1:", product3Address);
-
-
-    // ----------------------------------------------------------------    
-
-    // await enablePipelinePATO(
-    //     productAddress, 
-    //     org1Address, 
-    //     "http://200.137.66.30:8082/api/companies/1/objects/urn:epc:id:sgtin:4068194000.000.782149418/events/new",
-    //     jobId
-    // )
-
-    // ----------------------------------------------------------------
-
-    
-
+    console.log("Contrato product1AtOrganization1:", product3Address);    
 }
 
 main()

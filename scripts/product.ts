@@ -6,6 +6,10 @@ export async function deployProduct(
     productId: string, 
     organizationAddress: string
 ) {
+
+    const [deployer] = await ethers.getSigners();
+
+    console.log("Deploy by account:", deployer.address);
     console.log("///////////////////////////////")
 
     const supplyChainContract = await ethers.getContractAt("SupplyChain", supplyChainAddress);
@@ -61,15 +65,6 @@ export async function deployProduct(
     console.log(`Custo do deploy produto: \n Produto: ${productAddress} \n Custo: ${totalCostEther} ETH`);
 
     console.log("///////////////////////////////")
-
-
-
-
-
-
-
-
-
 
     return productAddress;
 }

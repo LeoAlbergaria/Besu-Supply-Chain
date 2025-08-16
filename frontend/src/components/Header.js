@@ -45,17 +45,11 @@ export default function Header() {
           style={{ height: 32 }}
           onClick={handleLogoClick}
         />
-        <span style={{ fontSize: 14, fontWeight: 'normal', color: Colors.textMain }}>
-          Dashboard
-        </span>
         <span
           style={{ fontSize: 14, fontWeight: 'normal', color: Colors.textMain }}
           onClick={handleLogoClick}
         >
           Supply Chains
-        </span>
-        <span style={{ fontSize: 14, fontWeight: 'normal', color: Colors.textMain }}>
-          Profile
         </span>
       </div>
 

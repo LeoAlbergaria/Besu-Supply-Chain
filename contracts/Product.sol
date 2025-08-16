@@ -29,6 +29,7 @@ contract Product is ProductPermissions {
     
     address private patoFactoryAddr;
     event ProductCreated(address indexed productAddress);
+    event ProductTransferred(address indexed from, address indexed to, address organization, uint256 timestamp);
 
     constructor(
         string memory _productName,
@@ -37,15 +38,19 @@ contract Product is ProductPermissions {
         address[] memory _participatingOrganizations
     ) ProductPermissions(_participatingOrganizations) {
         productInfo = ProductInfo({ name: _productName, id: _productId });
-        manager = msg.sender;
-        ownershipHistory.push(Ownership({ manager: msg.sender, startTime: block.timestamp }));
+        manager = tx.origin;
+        ownershipHistory.push(Ownership({ manager: manager, startTime: block.timestamp }));
         patoFactoryAddr = address(new PATOFactory());
         organizationToProductAtOrganization[_organizationAddress] = 
-            PATOFactory(patoFactoryAddr).deploy(address(this), _organizationAddress, msg.sender);
+            PATOFactory(patoFactoryAddr).deploy(address(this), _organizationAddress, manager);
     }
 
     function getName() public view returns (string memory) {
         return productInfo.name;
+    }
+
+    function getId() public view returns (string memory) {
+        return productInfo.id;
     }
 
     function getProductAtOrganization(address _organizationAddress) public view returns (address) {
@@ -59,11 +64,17 @@ contract Product is ProductPermissions {
     }
 
     function approveOwnershipTransfer(address orgAddress) public {
-        require(Organization(orgAddress).IsOwner(), "Only owner can approve");
         require(msg.sender == pendingManager, "Only the pending manager can approve the transfer");
+
+        address previousManager = manager;
+
         manager = pendingManager;
         pendingManager = address(0);
+
         ownershipHistory.push(Ownership({ manager: manager, startTime: block.timestamp }));
+
+        emit ProductTransferred(previousManager, manager, orgAddress, block.timestamp);
+
         nextPATO(orgAddress, manager);
     }
 

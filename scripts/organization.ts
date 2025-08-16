@@ -36,3 +36,35 @@ export async function deployOrganization(url: string, name: string) {
     return orgAddress;
 }
 
+// export async function deploySelfOrganization(url: string, name: string) {
+//   console.log("///////////////////////////////");
+
+//   const orgPrivateKey = "0xe18414ceb180a62508d31eb2cc206885f7351a3afa096aefcf880617e13a6805";
+//   const provider = ethers.provider;
+//   const orgSigner = new ethers.Wallet(orgPrivateKey, provider);
+
+//   const OrganizationContract = await ethers.getContractFactory("Organization", orgSigner);
+//   const organization1 = await OrganizationContract.deploy(url, name);
+
+//   const deploymentTransaction = organization1.deploymentTransaction();
+//   if (deploymentTransaction === null) {
+//     throw new Error("Falha ao obter a transação de deploy.");
+//   }
+
+//   const txReceipt = await deploymentTransaction.wait();
+//     if (txReceipt === null) {
+//     throw new Error("Falha ao obter a transação de deploy.");
+//   }
+
+//   const gasUsed = txReceipt.gasUsed;
+//   const gasPrice = deploymentTransaction.gasPrice;
+//   const totalCostWei = gasUsed * gasPrice;
+//   const totalCostEther = ethers.formatEther(totalCostWei);
+
+//   const orgAddress = await orgSigner.getAddress();
+
+//   console.log(`Custo do deploy da organização: \n Address: ${orgAddress} \n Custo: ${totalCostEther} ETH`);
+//   console.log("///////////////////////////////");
+
+//   return orgAddress;
+// }

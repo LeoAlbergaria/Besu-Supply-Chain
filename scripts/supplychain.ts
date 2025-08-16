@@ -3,11 +3,27 @@ import { ethers } from "hardhat";
 export async function deploySupplyChain(orgArray: string[], productType: string) {
     console.log("///////////////////////////////")
 
+    // SupplyChainRegistry
+    const RegistryFactory = await ethers.getContractFactory("SupplyChainRegistry");
+    const registry = await RegistryFactory.deploy();
+
+    const registryTx = await registry.deploymentTransaction();
+    if (!registryTx) throw new Error("Failed to get deployment transaction for registry.");
+    await registryTx.wait();
+
+    const registryAddress = await registry.getAddress();
+    console.log(`SupplyChainRegistry deployed at: ${registryAddress}`);
+
+    // SupplyChain
     const SupplyChainContract = await ethers.getContractFactory("SupplyChain");
+
+
+    console.log(`SupplyChain Org Array: ${orgArray}`);
 
     const supplychain = await SupplyChainContract.deploy(
         orgArray,
-        productType
+        productType,
+        registryAddress
     );
 
     // await supplychain.waitForDeployment();
