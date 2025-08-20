@@ -1,0 +1,17 @@
+{
+	"ulid": "01K3223P2BZ56C5HPVQR16SZXJ",
+	"minTime": 1755626404971,
+	"maxTime": 1755633600000,
+	"stats": {
+		"numSamples": 7195,
+		"numSeries": 5,
+		"numChunks": 61
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01K3223P2BZ56C5HPVQR16SZXJ"
+		]
+	},
+	"version": 1
+}

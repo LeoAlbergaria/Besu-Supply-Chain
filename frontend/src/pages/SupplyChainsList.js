@@ -58,32 +58,45 @@ export default function SupplyChainsList() {
 }
 
   async function loadAllSupplyChains(registry, signer, orgAddress) {
-    try {
-      const supplyChainAddresses = await registry.getSupplyChainsForOrg(orgAddress);
+    const mock = [
+  {
+    address: "0x01a582143958a6369615981C631a3c7fC184b579",
+    productType: "Pharmaceuticals",
+    productCount: 5,
+  },
+  {
+    address: "0x857ceFB463A8DE1731e2D2fe1A78A476A2B69Df0",
+    productType: "Electronics",
+    productCount: 12,
+  },
+];
+    setSupplyChains(mock);
+    // try {
+    //   const supplyChainAddresses = await registry.getSupplyChainsForOrg(orgAddress);
 
-      const supplyChainData = await Promise.all(
-        supplyChainAddresses.map(async (address) => {
-          try {
-            const contract = new ethers.Contract(address, SupplyChainArtifact.abi, signer);
-            const productType = await contract.productType();
-            const deployedProducts = await contract.getDeployedProducts();
-            return {
-              address,
-              productType,
-              productCount: deployedProducts.length,
-            };
-          } catch (error) {
-            console.error(`Erro ao carregar SupplyChain ${address}:`, error);
-            return null;
-          }
-        })
-      );
+    //   const supplyChainData = await Promise.all(
+    //     supplyChainAddresses.map(async (address) => {
+    //       try {
+    //         const contract = new ethers.Contract(address, SupplyChainArtifact.abi, signer);
+    //         const productType = await contract.productType();
+    //         const deployedProducts = await contract.getDeployedProducts();
+    //         return {
+    //           address,
+    //           productType,
+    //           productCount: deployedProducts.length,
+    //         };
+    //       } catch (error) {
+    //         console.error(`Erro ao carregar SupplyChain ${address}:`, error);
+    //         return null;
+    //       }
+    //     })
+    //   );
 
-      const validSupplyChains = supplyChainData.filter(Boolean);
-      setSupplyChains(validSupplyChains);
-    } catch (error) {
-      console.error("Erro ao carregar supply chains da organização:", error);
-    }
+    //   const validSupplyChains = supplyChainData.filter(Boolean);
+    //   setSupplyChains(validSupplyChains);
+    // } catch (error) {
+    //   console.error("Erro ao carregar supply chains da organização:", error);
+    // }
   }
 
   const filtered = supplyChains.filter(chain =>

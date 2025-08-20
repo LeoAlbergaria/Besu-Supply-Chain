@@ -41,8 +41,7 @@ contract Product is ProductPermissions {
         manager = tx.origin;
         ownershipHistory.push(Ownership({ manager: manager, startTime: block.timestamp }));
         patoFactoryAddr = address(new PATOFactory());
-        organizationToProductAtOrganization[_organizationAddress] = 
-            PATOFactory(patoFactoryAddr).deploy(address(this), _organizationAddress, manager);
+        organizationToProductAtOrganization[_organizationAddress] = PATOFactory(patoFactoryAddr).deploy(address(this), _organizationAddress, manager);
     }
 
     function getName() public view returns (string memory) {

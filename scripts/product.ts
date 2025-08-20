@@ -7,14 +7,8 @@ export async function deployProduct(
     organizationAddress: string
 ) {
 
-    const [deployer] = await ethers.getSigners();
-
-    console.log("Deploy by account:", deployer.address);
-    console.log("///////////////////////////////")
-
     const supplyChainContract = await ethers.getContractAt("SupplyChain", supplyChainAddress);
 
-    // Defina a interface do evento
     const eventInterface = new ethers.Interface([
         "event ProductCreated(address indexed contractAddress)"
     ]);
@@ -30,7 +24,6 @@ export async function deployProduct(
         throw new Error("sem resposta da transação");
     }
     
-    // Procura o log do evento "ContractCreated"
     const eventLog = receipt.logs.find((log) => {
         try {
             const parsedLog = eventInterface.parseLog(log);
@@ -38,33 +31,55 @@ export async function deployProduct(
                 throw new Error("sem resposta da parsed");
             }
             
-            return parsedLog.name === "ProductCreated"; // Verifica se é o evento desejado
+            return parsedLog.name === "ProductCreated";
         } catch {
             return false;
         }
     });
-
-    // Se o evento não for encontrado
     if (!eventLog) {
         throw new Error("Evento 'ProductCreated' não encontrado.");
     }
 
-    // Decodificando o log do evento para obter o endereço do contrato
     const parsedEvent = eventInterface.parseLog(eventLog);
     if (!parsedEvent) {
         throw new Error("sem resposta da parsed event");
     }
+
     const productAddress = parsedEvent.args.contractAddress;
+    const product = await ethers.getContractAt("Product", productAddress);
 
-    const gasUsed = receipt.gasUsed; 
-    const gasPrice = tx.gasPrice;
+    const prodName = await product.getName();
+    const prodId = await product.getId();
+    const manager = await product.manager();
+    const pendingManager = await product.pendingManager();
+    const history = await product.getOwnershipHistory();
 
-    const totalCostWei = gasUsed * gasPrice;
-    const totalCostEther = ethers.formatEther(totalCostWei);
+    const patoAddress = await product.getProductAtOrganization(organizationAddress);
 
-    console.log(`Custo do deploy produto: \n Produto: ${productAddress} \n Custo: ${totalCostEther} ETH`);
+    console.log("///////////////////////////////");
+    console.log("Product Deployed");
+    console.log(" Address:", productAddress);
+    console.log(" Name:", prodName);
+    console.log(" Id:", prodId);
+    console.log(" Manager:", manager);
+    console.log(" Pending Manager:", pendingManager);
+    console.log(" Ownership History:", history);
+    console.log(" Pato atual:", patoAddress);
+    console.log("///////////////////////////////\n");
 
-    console.log("///////////////////////////////")
+    const pato = await ethers.getContractAt("ProductAtOrganization", patoAddress);
+    const patoInfo = await pato.getInfo();
+    const patoManager = await pato.manager();
+    // const events = await pato.getEvents();
+
+    console.log("///////////////////////////////");
+    console.log("Pato Deployed");
+    console.log(" Address:", patoAddress);
+    console.log(" Product Address:", patoInfo.productAddress);
+    console.log(" Organization Address:", patoInfo.organizationAddress);
+    console.log(" Manager:", patoManager);
+    // console.log(" Events Count:", events.length);
+    console.log("///////////////////////////////\n");
 
     return productAddress;
 }

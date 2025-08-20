@@ -1,9 +1,7 @@
 import { ethers } from "hardhat";
 
 export async function deploySupplyChain(orgArray: string[], productType: string) {
-    console.log("///////////////////////////////")
 
-    // SupplyChainRegistry
     const RegistryFactory = await ethers.getContractFactory("SupplyChainRegistry");
     const registry = await RegistryFactory.deploy();
 
@@ -11,25 +9,19 @@ export async function deploySupplyChain(orgArray: string[], productType: string)
     if (!registryTx) throw new Error("Failed to get deployment transaction for registry.");
     await registryTx.wait();
 
-    const registryAddress = await registry.getAddress();
-    console.log(`SupplyChainRegistry deployed at: ${registryAddress}`);
+    const registryAddress = await registry.getAddress()
 
-    // SupplyChain
     const SupplyChainContract = await ethers.getContractFactory("SupplyChain");
-
-
-    console.log(`SupplyChain Org Array: ${orgArray}`);
 
     const supplychain = await SupplyChainContract.deploy(
         orgArray,
         productType,
         registryAddress
     );
-
-    // await supplychain.waitForDeployment();
     if (!supplychain) {
         throw new Error("Falha ao obter o receipt da transação.");
     }
+
     const deploymentTransaction = await supplychain.deploymentTransaction()
     if (!deploymentTransaction) {
         throw new Error("Falha ao obter o receipt da transação.");
@@ -40,43 +32,43 @@ export async function deploySupplyChain(orgArray: string[], productType: string)
         throw new Error("Falha ao obter o receipt da transação.");
     }
 
-    const gasUsed = txReceipt.gasUsed; 
-    const gasPrice = deploymentTransaction.gasPrice;
-
-    const totalCostWei = gasUsed * gasPrice;
-    const totalCostEther = ethers.formatEther(totalCostWei);
-
-    const supplyChainAddress = await supplychain.getAddress()
-
-    console.log(`Custo do deploy da supplyChain: \n Address: ${supplyChainAddress} \n Custo: ${totalCostEther} ETH`);
+    const supplyChainAddress = await supplychain.getAddress();
+    const supplyChainProductType = await supplychain.productType();
+    const participationManager = await supplychain.participationManagerAddress();
+    const supplychainRegistry = await supplychain.registryAddress();
+    const deployedProducts = await supplychain.getDeployedProducts();
 
     console.log("///////////////////////////////")
+    console.log("SupplyChain Deployed");
+    console.log(" Address:", supplyChainAddress);
+    console.log(" Product Type:", supplyChainProductType);
+    console.log(" Participation Manager Address:", participationManager);
+    console.log(" Registry Address:", supplychainRegistry);
+    console.log(" Deployed Products:", deployedProducts);
+    console.log("///////////////////////////////\n")
+
+    console.log("///////////////////////////////");
+    console.log("Registry Deployed");
+    console.log(" Address:", registryAddress);
+    for (const org of orgArray) {
+        const registered = await registry.getSupplyChainsForOrg(org);
+        console.log(` OrganizationAddress ${org} -> SupplyChainAddress:`, registered);
+    }
+    console.log("///////////////////////////////\n");
 
     return supplyChainAddress;
 }
 
-
 export async function acceptParticipation(orgAddress: string, supplyChainAddress: string) {
-    console.log("///////////////////////////////")
 
     const supplyChainContract = await ethers.getContractAt("SupplyChain", supplyChainAddress);
     const tx = await supplyChainContract.acceptParticipation(orgAddress);
     const txReceipt = await tx.wait()
-
     if (!txReceipt) {
         throw new Error("Falha ao obter o receipt da transação.");
     }
 
-    const gasUsed = txReceipt.gasUsed; 
-    const gasPrice = tx.gasPrice;
-
-    const totalCostWei = gasUsed * gasPrice;
-    const totalCostEther = ethers.formatEther(totalCostWei);
-
-    console.log(`Custo do aceite da organização: \n Organização: ${orgAddress} \n Custo: ${totalCostEther} ETH`);
-
     console.log("///////////////////////////////")
-
-
-    // console.log("Organization accepted:", orgAddress)
+    console.log("Org Accepted:", orgAddress);
+    console.log("///////////////////////////////\n")
 }
