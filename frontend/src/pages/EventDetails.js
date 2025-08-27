@@ -22,6 +22,28 @@ export default function EventDetails() {
     );
   }
 
+  // Safely parse event.jsonEvent (may be a JSON string or already an object)
+  const parsedPayload = (() => {
+    const payload = event.jsonEvent ?? event.payload ?? event.data;
+    if (payload == null) return null;
+
+    if (typeof payload === 'string') {
+      try {
+        return JSON.parse(payload);
+      } catch {
+        // Not valid JSON, return raw string
+        return payload;
+      }
+    }
+    // Already an object/array/etc.
+    return payload;
+  })();
+
+  const prettyPayload =
+    typeof parsedPayload === 'string'
+      ? parsedPayload
+      : JSON.stringify(parsedPayload, null, 2);
+
   return (
     <>
       <Header />
@@ -41,8 +63,11 @@ export default function EventDetails() {
         <div style={{ padding: Metrics.padding.standard }}>
           <Title
             title="Event Details"
-            subtitle={event.type || 'EPCIS Event'}
-            description="View detailed information about the selected event."
+            subtitle={event.typeEvent || event.type || 'EPCIS Event'}
+            description={
+              `Organization: ${event.orgAdress ?? '—'}`
+              + (event.timeEvent ? ` • Time: ${event.timeEvent}` : '')
+            }
           />
         </div>
 
@@ -56,27 +81,10 @@ export default function EventDetails() {
             whiteSpace: 'pre-wrap',
             fontSize: 14,
             color: Colors.textMain,
+            wordBreak: 'break-word',
           }}
         >
-          {JSON.stringify(
-            {
-              eventTime: "2025-03-19T12:00:00Z",
-              eventTimeZoneOffset: "+00:00",
-              epcList: ["urn:epc:id:sgtin:0614141.107346.2017"],
-              bizStep: "urn:epcglobal:cbv:bizstep:shipping",
-              disposition: "urn:epcglobal:cbv:disp:in_transit",
-              readPoint: { id: "urn:epc:id:sgln:0614141.07346.1234" },
-              bizLocation: { id: "urn:epc:id:sgln:0614141.07346.0" },
-              bizTransactionList: [
-                {
-                  type: "urn:epcglobal:cbv:btt:po",
-                  id: "http://transaction.acme.com/po/12345678",
-                },
-              ],
-            },
-            null,
-            2
-          )}
+          {prettyPayload || 'No payload for this event.'}
         </div>
       </div>
     </>

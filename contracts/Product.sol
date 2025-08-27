@@ -17,6 +17,7 @@ contract Product is ProductPermissions {
     address public pendingManager;
 
     struct Ownership {
+        address organization;
         address manager;
         uint256 startTime;
     }
@@ -39,7 +40,7 @@ contract Product is ProductPermissions {
     ) ProductPermissions(_participatingOrganizations) {
         productInfo = ProductInfo({ name: _productName, id: _productId });
         manager = tx.origin;
-        ownershipHistory.push(Ownership({ manager: manager, startTime: block.timestamp }));
+        ownershipHistory.push(Ownership({ organization: _organizationAddress, manager: manager, startTime: block.timestamp }));
         patoFactoryAddr = address(new PATOFactory());
         organizationToProductAtOrganization[_organizationAddress] = PATOFactory(patoFactoryAddr).deploy(address(this), _organizationAddress, manager);
     }
@@ -70,7 +71,7 @@ contract Product is ProductPermissions {
         manager = pendingManager;
         pendingManager = address(0);
 
-        ownershipHistory.push(Ownership({ manager: manager, startTime: block.timestamp }));
+        ownershipHistory.push(Ownership({ organization: ownershipHistory[0].organization, manager: manager, startTime: block.timestamp }));
 
         emit ProductTransferred(previousManager, manager, orgAddress, block.timestamp);
 

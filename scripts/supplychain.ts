@@ -51,7 +51,7 @@ export async function deploySupplyChain(orgArray: string[], productType: string)
     console.log("Registry Deployed");
     console.log(" Address:", registryAddress);
     for (const org of orgArray) {
-        const registered = await registry.getSupplyChainsForOrg(org);
+        const registered = await registry.getAllMySupplyChains();
         console.log(` OrganizationAddress ${org} -> SupplyChainAddress:`, registered);
     }
     console.log("///////////////////////////////\n");

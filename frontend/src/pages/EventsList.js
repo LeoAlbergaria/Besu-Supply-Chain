@@ -25,34 +25,22 @@ export default function EventsList() {
 
   const events = [
   {
-    address: '0x111aaa',
+    address: '0x18E174e8dBaaC1AF45b8144068b095054Da4737b',
     type: 'Created',
     time: '2024-01-10 09:00',
     organization: 'Company A',
   },
   {
-    address: '0x222bbb',
+    address: '0x24dF7d7687f7aDE5B0253B9A11B731706766BFab',
     type: 'Processed',
     time: '2024-01-12 11:30',
     organization: 'Company B',
   },
   {
-    address: '0x333ccc',
+    address: '0xF4B7a6C620797Ca6F28CEBADd2A179A40659bB95',
     type: 'Shipped',
     time: '2024-01-13 14:00',
     organization: 'Company C',
-  },
-  {
-    address: '0x444ddd',
-    type: 'Delivered',
-    time: '2024-01-15 16:45',
-    organization: 'Company D',
-  },
-  {
-    address: '0x555eee',
-    type: 'Inspected',
-    time: '2024-01-17 08:30',
-    organization: 'Company A',
   },
 ];
 

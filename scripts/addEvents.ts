@@ -2,12 +2,12 @@
 import { ethers } from "hardhat";
 
 // ====================== CONFIG ======================
-const N_SENDERS = 10;                // how many distinct senders (users)
-const EVENTS_PER_SENDER = 20000;    // txs each sender will submit
+const N_SENDERS = 2;                // how many distinct senders (users)
+const EVENTS_PER_SENDER = 10;    // txs each sender will submit
 const WINDOW = 64;                  // max in-flight nonce gap per sender (64–128 is safe)
 const POLL_MS = 50;                 // how often to re-check pending nonce
 const LOG_EVERY = 500;              // progress log interval per sender
-const SEND_DELAY_MS = 110;            // small pacing between sends (0 = off)
+const SEND_DELAY_MS = 0;            // small pacing between sends (0 = off)
 
 // gas settings (gas-free Besu)
 const GAS_PRICE = 0n;
@@ -15,8 +15,8 @@ const GAS_BUFFER_PCT = 30;          // +30% over estimate
 const GAS_FALLBACK = 500_000n;      // fallback gas limit if estimate fails
 
 // Contract discovery (same as your single-sender script)
-const PRODUCT_ADDRESS = "0x1EAFd45F44F056996b91847Fa585e90b32638363";
-const ORG_ADDRESS     = "0x01a582143958a6369615981C631a3c7fC184b579";
+const PRODUCT_ADDRESS = "0x2F5F87e5805ee020093BC2d09482DC61EaA63540";
+const ORG_ADDRESS     = "0x639347d9232056630724512c5a5263c2A52C473a";
 const ADDRESS_ZERO    = "0x0000000000000000000000000000000000000000";
 
 // Payload

@@ -57,6 +57,7 @@ export default function ProductsList() {
           })
         );
 
+        console.log("Products:", loaded.filter(Boolean))
         setProducts(loaded.filter(Boolean));
       } catch (err) {
         console.error("Failed to load products:", err);
@@ -71,7 +72,9 @@ export default function ProductsList() {
   );
 
   const handleViewDetails = (product) => {
-    navigate(`/product/${product.address}`);
+    navigate(`/product/${product.address}`, {
+      state: { product },
+    });
   };
 
   return (
@@ -109,7 +112,7 @@ export default function ProductsList() {
                 <th>Product Name</th>
                 <th>Product ID</th>
                 <th>Address</th>
-                <th>Last Updated</th>
+                <th>Last Update</th>
                 <th>Actions</th>
               </tr>
             </thead>

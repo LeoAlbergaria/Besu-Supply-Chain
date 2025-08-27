@@ -1,0 +1,17 @@
+{
+	"ulid": "01K3MGM2CTX60F7EDCA55J7TDN",
+	"minTime": 1756245600911,
+	"maxTime": 1756252800000,
+	"stats": {
+		"numSamples": 538560,
+		"numSeries": 374,
+		"numChunks": 4489
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01K3MGM2CTX60F7EDCA55J7TDN"
+		]
+	},
+	"version": 1
+}

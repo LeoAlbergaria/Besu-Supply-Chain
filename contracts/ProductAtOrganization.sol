@@ -54,10 +54,10 @@ contract ProductAtOrganization {
         events.push(eventInfo);
     }
 
-    function getEvents() public view returns (EventInfo[] memory) {
+    function getEvents(address organizationAddress) public view returns (EventInfo[] memory) {
         require(
             permissions.hasPermission(
-                msg.sender,
+                organizationAddress,
                 productInfo.organizationAddress
             ),
             "Access denied: caller not authorized"
